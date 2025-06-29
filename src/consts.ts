@@ -13,7 +13,7 @@ export const BLOG: Page = {
   DESCRIPTION: "Writing on topics I am passionate about.",
 };
 
-// Work Page
+// TIL Page
 export const TIL: Page = {
   TITLE: "Today I Learned",
   DESCRIPTION: "Places I have learned.",
@@ -29,6 +29,18 @@ export const PS: Page = {
 export const SEARCH: Page = {
   TITLE: "Search",
   DESCRIPTION: "Search all posts and projects by keyword.",
+};
+
+// Work Page
+export const WORK: Page = {
+  TITLE: "Work",
+  DESCRIPTION: "Places I have worked.",
+};
+
+// Projects Page
+export const PROJECTS: Page = {
+  TITLE: "Projects",
+  DESCRIPTION: "Recent projects I have worked on.",
 };
 
 // Links
