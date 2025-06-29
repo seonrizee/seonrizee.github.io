@@ -1,81 +1,80 @@
-import type { Site, Page, Links, Socials } from "@types"
+import type { Site, Page, Links, Socials } from "@types";
 
 // Global
 export const SITE: Site = {
-  TITLE: "Astro Sphere",
-  DESCRIPTION: "Welcome to Astro Sphere, a portfolio and blog for designers and developers.",
-  AUTHOR: "Mark Horn",
-}
-
-// Work Page
-export const WORK: Page = {
-  TITLE: "Work",
-  DESCRIPTION: "Places I have worked.",
-}
+  TITLE: "seonrizee",
+  DESCRIPTION: "Software Engineer",
+  AUTHOR: "Pilseon Kim",
+};
 
 // Blog Page
 export const BLOG: Page = {
   TITLE: "Blog",
   DESCRIPTION: "Writing on topics I am passionate about.",
-}
+};
 
-// Projects Page 
-export const PROJECTS: Page = {
-  TITLE: "Projects",
-  DESCRIPTION: "Recent projects I have worked on.",
-}
+// Work Page
+export const TIL: Page = {
+  TITLE: "Today I Learned",
+  DESCRIPTION: "Places I have learned.",
+};
+
+// Problem-solving Page
+export const PS: Page = {
+  TITLE: "Problem Solving",
+  DESCRIPTION: "Recent Problems I have solved on.",
+};
 
 // Search Page
 export const SEARCH: Page = {
   TITLE: "Search",
   DESCRIPTION: "Search all posts and projects by keyword.",
-}
+};
 
 // Links
 export const LINKS: Links = [
-  { 
-    TEXT: "Home", 
-    HREF: "/", 
+  {
+    TEXT: "Home",
+    HREF: "/",
   },
-  { 
-    TEXT: "Work", 
-    HREF: "/work", 
+  {
+    TEXT: "Blog",
+    HREF: "/blog",
   },
-  { 
-    TEXT: "Blog", 
-    HREF: "/blog", 
+  {
+    TEXT: "TIL",
+    HREF: "/til",
   },
-  { 
-    TEXT: "Projects", 
-    HREF: "/projects", 
+  {
+    TEXT: "Problem Solving",
+    HREF: "/ps",
   },
-]
+];
 
 // Socials
 export const SOCIALS: Socials = [
-  { 
+  {
     NAME: "Email",
-    ICON: "email", 
-    TEXT: "markhorn.dev@gmail.com",
-    HREF: "mailto:markhorn.dev@gmail.com",
+    ICON: "email",
+    TEXT: "seonrizee@gmail.com",
+    HREF: "mailto:seonrizee@gmail.com",
   },
-  { 
+  {
     NAME: "Github",
     ICON: "github",
-    TEXT: "markhorn-dev",
-    HREF: "https://github.com/markhorn-dev/astro-sphere"
+    TEXT: "seonrizee",
+    HREF: "https://github.com/seonrizee",
   },
-  { 
-    NAME: "LinkedIn",
-    ICON: "linkedin",
-    TEXT: "markhorn-dev",
-    HREF: "https://www.linkedin.com/in/markhorn-dev/",
-  },
-  { 
-    NAME: "Twitter",
-    ICON: "twitter-x",
-    TEXT: "markhorn_dev",
-    HREF: "https://twitter.com/markhorn_dev",
-  },
-]
-
+  // {
+  //   NAME: "LinkedIn",
+  //   ICON: "linkedin",
+  //   TEXT: "seonrizee",
+  //   HREF: "https://www.linkedin.com/in/seonrizee/",
+  // },
+  // {
+  //   NAME: "Twitter",
+  //   ICON: "twitter-x",
+  //   TEXT: "seonrizee",
+  //   HREF: "https://twitter.com/seonrizee",
+  // },
+];
