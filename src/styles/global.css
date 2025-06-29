@@ -29,7 +29,6 @@ html {
   color-scheme: light;
   background-color: white;
   font-family: "Atkinson", sans-serif;
-
 }
 
 html.dark {
@@ -52,19 +51,23 @@ main {
   @apply flex flex-col flex-1 bg-white dark:bg-black;
 }
 
-header {
+/* header {
   @apply border-b;
   @apply transition-all duration-300 ease-in-out;
-}
+} */
 
-header:not(.scrolled) {
+/* header:not(.scrolled) {
   @apply bg-transparent border-transparent;
-}
-
+} */
+/* 
 header.scrolled {
   @apply bg-white/75 dark:bg-black/50;
   @apply border-black/10 dark:border-white/25;
   @apply backdrop-blur-sm saturate-200;
+} */
+
+header {
+  @apply bg-white dark:bg-neutral-900 border-b border-black/10 dark:border-white/25;
 }
 
 article {
@@ -123,14 +126,12 @@ article img {
   /* defined in tailwind.config */
 }
 
-
 /**
  * Meteors
  */
 
 #meteors .shower {
   @apply absolute inset-0 top-0;
-  ;
   @apply left-1/2 -translate-x-1/2;
   @apply w-screen aspect-square;
 }
