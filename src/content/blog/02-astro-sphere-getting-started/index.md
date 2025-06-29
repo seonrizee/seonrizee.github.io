@@ -43,7 +43,7 @@ export const SITE: Site = {
 
 ### Change the branding
 
-The browser icon is located in `/public/favicon.svg`
+The browser icon is located in `/public/logo.webp`
 
 The header and footer branding icon is located in `/public/brand.svg` as a sprite with id="brand"
 

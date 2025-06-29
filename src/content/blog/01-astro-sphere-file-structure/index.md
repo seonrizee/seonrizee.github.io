@@ -22,7 +22,7 @@ A one line summary of what each file and directory is for:
 │   │   └── scroll.js // scroll handler for the header styles
 │   │   └── theme.js // controls the light and dark theme
 │   └── brand.svg //the icon that displays in header and footer
-│   └── favicon.svg //the icon that displays in the browser
+│   └── logo.webp //the icon that displays in the browser
 │   └── ui.svg // an svg sprite for all ui icons on the website
 │   └── social.svg // an svg sprite for all social media icons
 │   └── open-graph.jpg // the default image for open-graph
