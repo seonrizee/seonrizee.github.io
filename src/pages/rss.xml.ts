@@ -1,41 +1,30 @@
-import rss from "@astrojs/rss";
-import { getSortedPosts } from "@utils/content-utils";
-import type { APIContext } from "astro";
-import MarkdownIt from "markdown-it";
-import sanitizeHtml from "sanitize-html";
-import { siteConfig } from "@/config";
+import rss from "@astrojs/rss"
+import { getCollection } from "astro:content"
+import { SITE } from "@consts"
 
-const parser = new MarkdownIt();
-
-function stripInvalidXmlChars(str: string): string {
-	return str.replace(
-		// biome-ignore lint/suspicious/noControlCharactersInRegex: https://www.w3.org/TR/xml/#charsets
-		/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F\uFDD0-\uFDEF\uFFFE\uFFFF]/g,
-		"",
-	);
+type Context = {
+  site: string
 }
 
-export async function GET(context: APIContext) {
-	const blog = await getSortedPosts();
+export async function GET(context: Context) {
+	const posts = await getCollection("blog")
+  const projects = await getCollection("projects")
 
-	return rss({
-		title: siteConfig.title,
-		description: siteConfig.subtitle || "No description",
-		site: context.site ?? "https://fuwari.vercel.app",
-		items: blog.map((post) => {
-			const content =
-				typeof post.body === "string" ? post.body : String(post.body || "");
-			const cleanedContent = stripInvalidXmlChars(content);
-			return {
-				title: post.data.title,
-				pubDate: post.data.published,
-				description: post.data.description || "",
-				link: `/posts/${post.slug}/`,
-				content: sanitizeHtml(parser.render(cleanedContent), {
-					allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
-				}),
-			};
-		}),
-		customData: `<language>${siteConfig.lang}</language>`,
-	});
+  const items = [...posts, ...projects]
+
+  items.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime())
+
+  return rss({
+    title: SITE.TITLE,
+    description: SITE.DESCRIPTION,
+    site: context.site,
+    items: items.map((item) => ({
+      title: item.data.title,
+      description: item.data.summary,
+      pubDate: item.data.date,
+      link: item.slug.startsWith("blog")
+        ? `/blog/${item.slug}/`
+        : `/projects/${item.slug}/`,
+    })),
+  })
 }

@@ -1,24 +1,45 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection, z } from "astro:content"
 
-const postsCollection = defineCollection({
-	schema: z.object({
-		title: z.string(),
-		published: z.date(),
-		updated: z.date().optional(),
-		draft: z.boolean().optional().default(false),
-		description: z.string().optional().default(""),
-		image: z.string().optional().default(""),
-		tags: z.array(z.string()).optional().default([]),
-		category: z.string().optional().nullable().default(""),
-		lang: z.string().optional().default(""),
+const work = defineCollection({
+  type: "content",
+  schema: z.object({
+    company: z.string(),
+    role: z.string(),
+    dateStart: z.coerce.date(),
+    dateEnd: z.union([z.coerce.date(), z.string()]),
+  }),
+})
 
-		/* For internal use */
-		prevTitle: z.string().default(""),
-		prevSlug: z.string().default(""),
-		nextTitle: z.string().default(""),
-		nextSlug: z.string().default(""),
-	}),
-});
-export const collections = {
-	posts: postsCollection,
-};
+const blog = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()),
+    draft: z.boolean().optional(),
+  }),
+})
+
+const projects = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    date: z.coerce.date(),
+    tags: z.array(z.string()),
+    draft: z.boolean().optional(),
+    demoUrl: z.string().optional(),
+    repoUrl: z.string().optional(),
+  }),
+})
+
+const legal = defineCollection({
+  type: "content",
+  schema: z.object({
+    title: z.string(),
+    date: z.coerce.date(),
+  }),
+})
+
+export const collections = { work, blog, projects, legal }
