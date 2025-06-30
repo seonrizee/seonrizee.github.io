@@ -17,6 +17,11 @@ const projects = (await getCollection("projects"))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0,3)
 
+const TILs = (await getCollection("til"))
+  .filter(project => !project.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0,3)
+
 const stack = [
   { 
     text: "Astro", 
@@ -166,7 +171,7 @@ const stack = [
       </section> -->
 
       <!-- Project Preview Section -->
-      <section class="animate">
+      <!-- <section class="animate">
         <div class="space-y-4">
           <div class="flex justify-between">
             <p class="font-semibold text-black dark:text-white">
@@ -182,6 +187,29 @@ const stack = [
             {projects.map((project) => (
               <li>
                 <ArrowCard entry={project} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section> -->
+
+      <!-- TIL Section -->
+      <section class="animate">
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <p class="font-semibold text-black dark:text-white">
+              Recent TILs
+            </p>
+            <a href="/til" class="w-fit col-span-3 group flex gap-1 items-center underline decoration-[.5px] decoration-black/25 dark:decoration-white/50 hover:decoration-black dark:hover:decoration-white text-black dark:text-white underline-offset-2 blend">
+              <span class="text-black/75 dark:text-white/75 group-hover:text-black group-hover:dark:text-white blend">
+                All TILs
+              </span>
+            </a>
+          </div>
+          <ul class="space-y-4">
+            {TILs.map((til) => (
+              <li>
+                <ArrowCard entry={til} />
               </li>
             ))}
           </ul>
