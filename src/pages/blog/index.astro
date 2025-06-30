@@ -5,7 +5,6 @@ import TopLayout from "@layouts/TopLayout.astro";
 import BottomLayout from "@layouts/BottomLayout.astro";
 import SearchCollection from "@components/SearchCollection";
 import { BLOG } from "@consts";
-import Comments from "@components/Comments.astro";
 
 const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
@@ -43,6 +42,5 @@ const estimated_initial_size =
         data={posts}
       />
     </div>
-    <Comments />
   </BottomLayout>
 </PageLayout>
