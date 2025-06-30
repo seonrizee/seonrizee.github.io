@@ -87,12 +87,12 @@ export const SOCIALS: Socials = [
     TEXT: "seonrizee",
     HREF: "https://github.com/seonrizee",
   },
-  // {
-  //   NAME: "LinkedIn",
-  //   ICON: "linkedin",
-  //   TEXT: "seonrizee",
-  //   HREF: "https://www.linkedin.com/in/seonrizee/",
-  // },
+  {
+    NAME: "LinkedIn",
+    ICON: "linkedin",
+    TEXT: "Pilseon Kim",
+    HREF: "https://www.linkedin.com/in/pilseon-kim-83804a210",
+  },
   // {
   //   NAME: "Twitter",
   //   ICON: "twitter-x",
