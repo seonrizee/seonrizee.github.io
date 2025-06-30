@@ -4,6 +4,7 @@ import PageLayout from "@layouts/PageLayout.astro";
 import TopLayout from "@layouts/TopLayout.astro";
 import BottomLayout from "@layouts/BottomLayout.astro";
 import SearchCollection from "@components/SearchCollection";
+import Comments from "@components/Comments.astro";
 import { TIL } from "@consts";
 
 const posts = (await getCollection("til"))
@@ -29,6 +30,7 @@ const estimated_initial_size =
       </div>
     </div>
   </TopLayout>
+  <Comments />
   <BottomLayout>
     <div
       id="search-collection-wrapper"
