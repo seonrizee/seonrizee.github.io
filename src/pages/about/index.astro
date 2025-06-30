@@ -1,0 +1,19 @@
+---
+import PageLayout from "@layouts/PageLayout.astro";
+import TopLayout from "@layouts/TopLayout.astro";
+import BottomLayout from "@layouts/BottomLayout.astro";
+import { ABOUT } from "@consts";
+---
+
+<PageLayout title={ABOUT.TITLE} description={ABOUT.DESCRIPTION}>
+  <TopLayout>
+    <div class="animate page-heading">
+      {ABOUT.TITLE}
+    </div>
+  </TopLayout>
+  <BottomLayout>
+    <ul>
+      <h1>작성 중</h1>
+    </ul>
+  </BottomLayout>
+</PageLayout>

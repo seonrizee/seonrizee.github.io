@@ -16,7 +16,7 @@ export const BLOG: Page = {
 // TIL Page
 export const TIL: Page = {
   TITLE: "Today I Learned",
-  DESCRIPTION: "Places I have learned.",
+  DESCRIPTION: "Things I have learned.",
 };
 
 // Problem-solving Page
@@ -43,6 +43,12 @@ export const PROJECTS: Page = {
   DESCRIPTION: "Recent projects I have worked on.",
 };
 
+// About Page
+export const ABOUT: Page = {
+  TITLE: "About",
+  DESCRIPTION: "About me",
+};
+
 // Links
 export const LINKS: Links = [
   {
@@ -60,6 +66,10 @@ export const LINKS: Links = [
   {
     TEXT: "Problem Solving",
     HREF: "/ps",
+  },
+  {
+    TEXT: "About",
+    HREF: "/about",
   },
 ];
 
