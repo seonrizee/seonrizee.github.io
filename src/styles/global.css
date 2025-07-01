@@ -74,6 +74,15 @@ article {
   @apply prose dark:prose-invert max-w-full pb-12;
 }
 
+article :not(pre) > code {
+  @apply text-pink-500 bg-gray-100 rounded px-1 py-0.5;
+}
+
+code::before,
+code::after {
+  content: "";
+}
+
 .page-heading {
   @apply font-semibold text-black dark:text-white;
 }
