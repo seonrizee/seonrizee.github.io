@@ -9,7 +9,7 @@ import type { CollectionEntry } from "astro:content";
 
 const projects = (await getCollection("projects"))
   .filter((project) => !project.data.draft)
-  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
 
 const tags = [
   ...new Set(projects.flatMap((project) => project.data.tags)),
