@@ -21,13 +21,13 @@ tags:
 
 이 때 Firebase Config 정보(API 키, 프로젝트 ID 등)는 클라이언트 즉, 저의 경우에는 Javascript 코드에 포함되어 브라우저에서 직접 Firebase 서비스와 통신해야 합니다. 따라서 이 정보는 사용하는 **Git 저장소의 코드를 통해서 Config 정보가 직접 노출**되게 됩니다. 이와 더불어 배포된 웹페이지의 소스 코드를 통해서도 노출될 수 있습니다.
 
-![개발자 도구에서 확인할 수 있는 config 정보](image.png)
+![개발자 도구에서 확인할 수 있는 config 정보](./img/image.png)
 
 개발자 도구에서 확인할 수 있는 config 정보
 
 다만 Firebase는 이러한 노출을 염두에 두고 설계되었으며, **실제 보안은 Firestore 보안 규칙(Security Rules)으로 통제된다는 점을 굉장히 강조**하고 있습니다.  하지만 Git 저장소에서의 직접 노출을 피하고, 향후 다른 프론트엔드 혹은 배포 환경이나 다른 API 키를 다룰 때를 대비하여 이를 은닉하는 방법을 학습하고자 했습니다.
 
-![Firebase docs](image%201.png)
+![Firebase docs](./img/image%201.png)
 
 Firebase docs
 
