@@ -4,13 +4,35 @@ import BaseHead from "@components/BaseHead.astro"
 import Header from "@components/Header.astro"
 import Footer from "@components/Footer.astro"
 import Drawer from "@components/Drawer.astro"
-const { title, description } = Astro.props
+const { title, description, image } = Astro.props
 import { SITE } from "@consts"
+import {SEO} from "astro-seo"
+
+const siteUrl = Astro.site; // astro.config.mjs의 site 주소
+
+export interface Props {
+	title: string;
+	description: string;
+	image?: string;
+}
+
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
+    <SEO
+			title={title}
+			description={description}
+			openGraph={{
+				basic: {
+					title: title,
+					type: 'article',
+					image: image ? new URL(image, siteUrl).href : new URL('/public/logo.webp', siteUrl).href,
+					url: Astro.url
+				},
+			}}
+		/>
     <BaseHead title={`${title} | ${SITE.TITLE}`} description={description} />
   </head>
   <body>
