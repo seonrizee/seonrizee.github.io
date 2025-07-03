@@ -1,12 +1,10 @@
 ---
-title: "GitHub Actions Secrets로 알아보는 환경 변수 관리"
-summary: "GitHub Actions Secrets로 알아보는 환경 변수 관리"
+title: "GitHub Pages에 API 키, Config 안전하게 배포하기: Actions와 Secrets 활용"
+summary: "GitHub Pages에 API 키, Config 안전하게 배포하기: Actions와 Secrets 활용"
 date: "July 03 2025"
 draft: false
 tags:
-- Web
-- Firebase
-- Github
+- DevOps
 ---
 
 ## GitHub Actions Secrets로 알아보는 환경 변수 관리
