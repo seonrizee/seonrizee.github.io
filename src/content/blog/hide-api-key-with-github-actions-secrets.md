@@ -17,19 +17,17 @@ tags:
 
 ### 문제 상황: 정적 페이지에 Config 정보 은닉하기
 
-저는 부트캠프를 하고 있는 저를 비롯한 팀원들의 팀 및 자기소개 페이지를 개발했습니다. 그리고 이는 html, css, js로만 이루어져 있습니다. 그리고 이를 Github Pages에 배포하고자 했습니다.
+저는 저와 팀원들의 자기소개 페이지를 개발하는 미니 프로젝트를 하고 있습니다. 그리고 기술은 html, css, js 그리고 firebase firestore를 사용하고 있습니다. 그리고 이를 Github Pages에 배포하고자 했습니다.
 
 이 때 Firebase Config 정보(API 키, 프로젝트 ID 등)는 클라이언트 즉, 저의 경우에는 Javascript 코드에 포함되어 브라우저에서 직접 Firebase 서비스와 통신해야 합니다. 따라서 이 정보는 사용하는 **Git 저장소의 코드를 통해서 Config 정보가 직접 노출**되게 됩니다. 이와 더불어 배포된 웹페이지의 소스 코드를 통해서도 노출될 수 있습니다.
 
 ![개발자 도구에서 확인할 수 있는 config 정보](./img/image.png)
 
-개발자 도구에서 확인할 수 있는 config 정보
 
 다만 Firebase는 이러한 노출을 염두에 두고 설계되었으며, **실제 보안은 Firestore 보안 규칙(Security Rules)으로 통제된다는 점을 굉장히 강조**하고 있습니다.  하지만 Git 저장소에서의 직접 노출을 피하고, 향후 다른 프론트엔드 혹은 배포 환경이나 다른 API 키를 다룰 때를 대비하여 이를 은닉하는 방법을 학습하고자 했습니다.
 
 ![Firebase docs](./img/image%201.png)
 
-Firebase docs
 
 방법을 찾던 중, **GitHub Actions의 Secrets 기능과 번들러를 활용하는 방법**을 찾게 되었습니다.
 
@@ -129,3 +127,8 @@ Firebase Config 정보가 **Git 저장소(소스 코드)에 직접 노출되지 
 그리고 제가 개발한 자기 소개 사이트처럼 아주 작은 규모의 프로젝트인 경우에는 조금 과장하면 개발하는 시간보다 번들러 설정 시간이 더 길 수도 있고, 번들러로 인해 생성되는 소스의 크기가 기존보다 더 클 수도 있으니 트레이드오프를 잘 따져봐야 할 것 같습니다.
 
 그리고 마지막으로 다시 한번 강조하지만 **Firebase를 사용하는 경우**에는 보안을 위해서라면 Security Rules, Authentication, App check 등 **Firebase의 자체의 보안 관련 기능을 활용하는 것이 가장 중요**합니다!
+
+참고
+* [Github Docs - Using secrets in GitHub Actions](https://docs.github.com/en/actions/how-tos/security-for-github-actions/security-guides/using-secrets-in-github-actions)
+* [Firebase 개발자 문서 - Firebase용 API 키 사용 및 관에대해 알아보기](https://firebase.google.com/docs/projects/api-keys?utm_source=chatgpt.com&hl=ko)
+* [Firebase 개발자 문서 - 다양한 개발 워크플로 환경의 일반적인 보안 가이드라인](https://firebase.google.com/docs/projects/dev-workflows/general-security-guidelines?hl=ko)
