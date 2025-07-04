@@ -1,9 +1,11 @@
-# TIL
-
-날짜: 2025년 7월 4일
-입실: Yes
-퇴실: No
-TIL 제출: No
+---
+title: "Astro 블로그에 썸네일(og:image) 추가하기"
+summary: "Astro 블로그에 썸네일(og:image) 추가하기"
+date: "July 04 2025"
+draft: false
+tags:
+- Frontend
+---
 
 ## Astro 블로그에 썸네일(og:image) 추가하기
 
