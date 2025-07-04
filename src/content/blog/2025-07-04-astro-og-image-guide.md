@@ -1,15 +1,13 @@
 ---
-title: "Astro 블로그에 썸네일(og:image) 추가하기"
-summary: "Astro 블로그에 썸네일(og:image) 추가하기"
+title: "public 폴더의 의미와 Astro 블로그에 소셜 공유 이미지 (og:image) 추가하기"
+summary: ""
 date: "July 04 2025"
 draft: false
 tags:
 - Frontend
 ---
 
-## Astro 블로그에 썸네일(og:image) 추가하기
-
-이 글은 Astro를 사용하여 개발한 블로그에서 각 포스트마다 고유한 썸네일을 설정하고, 없을 경우엔 기본 이미지가 나오도록 하는 과정에서 겪었던 문제와 해결 방법을 정리한 글입니다.
+이 글은 Astro를 사용하여 개발한 블로그 글을 공유할 때, 원하는 이미지가 나오도록 하는 과정에서 겪었던 문제와 해결 방법을 정리한 글입니다.
 
 ---
 
@@ -19,11 +17,9 @@ Astro를 이용하여 블로그를 만든 뒤에 새로운 글을 작성하면 �
 
 ![Astro Sphere 이미지가 미리보기에 표현 됨](./img/2025-07-04-image.png)
 
-Astro Sphere 이미지가 미리보기에 표현 됨
-
 ### 1. Astro와 Open Graph
 
-소셜 미디어에 링크를 공유할 때 표시되는 **미리보기**(제목, 설명, 이미지)는 메타가 페이스북이던 시절에 개발한 [**오픈그래프(Open Graph) 프로토콜**](https://ogp.me/)에 의해 제어됩니다. 그중 이미지를 담당하는 것이 바로 `<meta property="og:image" content="이미지_URL">` 태그입니다.
+소셜 미디어에 링크를 공유할 때 표시되는 **미리보기**(제목, 설명, 이미지)는 메타가 페이스북이던 시절에 메타데이터의 사용방식을 표준화하여 개발한 [**오픈그래프(Open Graph) 프로토콜**](https://ogp.me/)에 의해 제어됩니다. 그중 이미지를 담당하는 것이 바로 `<meta property="og:image" content="이미지_URL">` 태그입니다.
 
 Astro에서는 이 과정을 레이아웃과 Props를 통해 동적으로 처리할 수 있습니다. 
 
@@ -100,15 +96,13 @@ const { title, description, image = "/public/logo.png" } = Astro.props
 <meta property="og:image" content={new URL(image, Astro.url)} />
 ```
 
-따라서 props에 기본값으로 정의된 파일의 주소인 `"/open-graph.jpg”`를 제가 사용하려고 하는 이미지 파일의 주소인 `“/public/logo.png”` 교체했습니다. 이 때 무심결에 실제 경로인 `public`을 추가했습니다.
+따라서 props에 기본값으로 정의된 파일의 주소인 `"/open-graph.jpg”`를 제가 사용하려고 하는 이미지 파일의 주소인 `“/public/logo.png”` 교체했습니다. 이 때 무심결에 실제 경로인 `public`을 추가했습니다. 이것이 모든 문제의 시작이었습니다.
 
 ### 2. 404 Not Found
 
 코드를 작성하고 사이트를 배포했지만, 오히려 공유를 해보니 이미지가 사려졌습니다. 파일을 찾지 못하고 있다고 의심 중에 개발자 도구를 통해 `og:image`의 URL을 얻어 직접 접속해보니 **404 Not Found 오류**가 발생했습니다. 
 
 ![사라진 opengraph img](./img/2025-07-04-image%201.png)
-
-사라진 opengraph img
 
 - 생각해본 오류
     - `git status`: 이미지 파일과 소스 코드가 Git에 잘 commit 되었는가? -> **문제없음**
@@ -164,15 +158,15 @@ const { title, description, image = "/logo.png" } = Astro.props // 수정 후
 
 > `public/` 디렉터리는 Astro 빌드 과정 중에 처리할 필요가 없는 프로젝트의 파일과 자산을 위한 곳입니다. 이 폴더의 파일은 변경 없이 빌드 폴더로 복사된 후 사이트가 빌드됩니다.
 이러한 동작으로 인해 `public/`은 일부 이미지와 글꼴, 또는 `robots.txt` 및 `manifest.webmanifest`와 같은 특수 파일과 같이 처리할 필요가 없는 일반적인 자산에 이상적입니다.
-`public/` 디렉터리에 CSS와 JavaScript를 배치할 수 있지만, 해당 파일은 최종 빌드에서 번들링되거나 최적화되지 않습니다.
+`public/` 디렉터리에 CSS와 JavaScript를 배치할 수 있지만, 해당 파일은 최종 빌드에서 번들링되거나 최적화되지 않습니다.  
 [-Astro 공식 문서](https://docs.astro.build/en/basics/project-structure/#public)
-> 
+>
 
 하지만 **로컬 개발 서버**에서는  Astro에서 사용하는 도구인 `Vite`가 public 폴더의 파일들이 루트에 있는 것처럼 **매핑**을 합니다. 하지만 실제로 빌드했을 때처럼 **실제 파일을 옮기는 것은 아니기** 때문에 주소가 `/public/logo.png`로 작성되어 있어도 **실제 파일이 여전히 존재**하여 정상 작동했던 것이었습니다.
 
-> 그런 다음 프로젝트 루트 아래의 특정 `public`디렉터리에 에셋을 저장할 수 있습니다. 이 디렉터리의 에셋은 개발 과정에서 루트 경로에 제공되고 `/`, dist 디렉터리의 루트에 그대로 복사됩니다.
+> 그런 다음 프로젝트 루트 아래의 특정 `public`디렉터리에 에셋을 저장할 수 있습니다. 이 디렉터리의 에셋은 개발 과정에서 루트 경로에 제공되고 `/`, dist 디렉터리의 루트에 그대로 복사됩니다.  
 [-Vite 공식 문서](https://vite.dev/guide/assets.html#the-public-directory)
-> 
+>
 
 ### 5. 게시글마다 다른 이미지 보여주기
 
@@ -199,7 +193,7 @@ const ogImage = image ?? DEFAULT_IMAGE;
 
 ```
 
-이 글을 통해 `opengraph protocol`의 역할과 `public` 폴더의 의미와 역사 그리고 Astro의 빌드 프로세스 및 정적 파일 관리에 대해 이해할 수 있었습니다. 저와 비슷한 문제를 겪는 분들께 이 글이 도움이 되기를 바랍니다.
+이 과정을 통해 `Open Graph Protocol`의 역할과 `public` 폴더의 의미와 역사 그리고 Astro의 빌드 프로세스 및 정적 파일 관리에 대해 이해할 수 있었습니다. 저와 비슷한 문제를 겪는 분들께 이 글이 도움이 되기를 바랍니다.
 
 참고
 
