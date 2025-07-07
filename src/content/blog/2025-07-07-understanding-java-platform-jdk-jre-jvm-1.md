@@ -77,4 +77,6 @@ JVM은 크게 Class Loaders, Run-Time Data Areas, Execution Engine 등 복잡하
 - [Baeldung - Difference Between JVM, JRE, and JDK](https://www.baeldung.com/jvm-vs-jre-vs-jdk)
 - [geeksforgeeks - Differences Between JDK, JRE, and JVM](https://www.geeksforgeeks.org/java/differences-jdk-jre-jvm/)
 - [Platform Engineer - Understanding JVM Architecture](https://medium.com/platform-engineer/understanding-jvm-architecture-22c0ddf09722)
+- [벤저민 J. 에번스, 제임스 고프, 크리스 뉴랜드 저/이일웅 역 , 『자바 최적화』, 한빛미디어, 2019](https://www.yes24.com/product/goods/72161685)
+- [김종민, 『스프링 입문을 위한 자바 객체 지향의 원리와 이해』, 위키북스, 2015](https://www.yes24.com/product/goods/17350624)  
 - Google Gemini
