@@ -13,14 +13,14 @@ tags:
 
 자바 코드의 실행 과정을 간단히 요약하면 아래와 같은 과정을 거칩니다. 이 과정을 온전히 이해하기 위해 JDK와 JRE 그리고 JVM같은 용어들에 대해 알아보겠습니다.
 
-```java
+```CSS
 Java Source File (.java)
-      ↓ [javac: Compiler JDK]
+      ↓ [javac: Compiler (JDK)]
 Bytecode File (.class)
-      ↓ [Class Loader JVM]
+      ↓ [Class Loader (JVM)]
 Method Area (JVM 메모리)
       ↓
-Execution Engine (Interpreter + JIT Compiler JVM)
+Execution Engine (Interpreter + JIT Compiler (JVM))
       ↓
 Native Machine Code 실행 (CPU)
 ```
@@ -31,11 +31,11 @@ Native Machine Code 실행 (CPU)
 
 ![](https://www.oracle.com/img/tech/java8-conceptual-design.jpg)
 
-흔히, 위의 사진처럼 JDK는 `JRE`와 `Development Tools`를 포함하고 있는 그림을 많이 보셨을겁니다. 그리고 지금도 많은 곳에서 JDK가 JRE를 포함하고 있다고 설명하는 경우가 많습니다. **그러나, 버전에 따라서는 틀릴 수도 있는 설명입니다.**  `Java8` 까지는 맞는 구조라고 할 수 있으며, 위의 그림도 Java 8 버전에 대한 Oracle 공식 문서에서 가져왔습니다.
+흔히, 위의 사진처럼 JDK는 `JRE`와 `Development Tools`를 포함하고 있는 그림을 많이 보셨을겁니다. 그리고 지금도 많은 곳에서 JDK가 JRE를 포함하고 있다고 설명하는 경우가 많습니다. **그러나, 버전에 따라서는 엄밀히 말하면 틀릴 수도 있는 설명입니다.**  `Java8` 까지는 맞는 구조라고 할 수 있으며, 위의 그림도 Java 8 버전에 대한 Oracle 공식 문서에서 가져왔습니다.
 
 ## 1.1 JRE
 
-아래에서 설명하겠습니다.
+아래에서 자세히 설명하겠습니다.
 
 ## 1.2 Development Tools
 
@@ -55,7 +55,7 @@ JDK의 하위 집합으로 `JVM`을 비롯해서 Java 애플리케이션을 실�
 
 JRE는 `rt.jar`라는 자바의 모든 라이브러리를 통째로 포함하는 거대한 패키지였습니다. 하지만 대부분의 애플리케이션은 일부만 필요로 했습니다. 거기에 **Java 9**부터는 `JPMS`(Java Platform Module System) 가 도입되었습니다.  따라서 JDK 역시도 여러 모듈로 분리했습니다. 그리고 JDK에 포함 된 `jlink`라는 도구를 이용하여 이전의 JRE와 같은 실행 환경을 만들고자 했습니다. 
 
-jlink는 개발자가 코드로 작성한 애플리케이션 Module과 그 앱에 필요한 JDK의 Module만 골라내고, 여기에 JVM을 포함시켜 일종의 **Custom Runtime Environment**를 생성합니다. 이것이 과거의 JRE를 대체하게 됩니다. 그리고 rt.jar는 사라졌습니다.
+jlink는 개발자가 코드로 작성한 애플리케이션 Module과 그 앱에 필요한 JDK의 Module만 골라내고, 여기에 JVM을 포함시켜 일종의 **Custom Java Runtime Environment**를 생성합니다. 공식적으로는 `Custom Runtime Image` 라고 부르며, Custom JRE라고 관용적으로 부르기도 하는 것 같습니다. 필요한 모듈만 추가하여 경량화에 큰 장점을 가지고 있어, `Docker`와 궁합이 좋다고 말하는 사람들도 있습니다. 어쩄든 jlink를 통해 만든 Custom Runtime Image가 과거의 JRE를 대체하게 됩니다. 그리고 rt.jar는 사라졌습니다.
 
 # 3. JVM (Java Virtual Machine)
 
