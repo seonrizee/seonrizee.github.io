@@ -1,5 +1,5 @@
 ---
-title: "TIL 자바의 실행 과정과 JDK, JRE, JVM의 역할 1: 간단히 알아보기"
+title: "자바의 실행 과정과 JDK, JRE, JVM의 역할 1: 간단히 알아보기"
 summary: ""
 date: "July 07 2025"
 draft: false
