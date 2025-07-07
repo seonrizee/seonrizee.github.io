@@ -68,3 +68,13 @@ JVM Spec에 따르면 JVM은 스택 기반의 **인터프리터**입니다. 저�
 JVM은 크게 Class Loaders, Run-Time Data Areas, Execution Engine 등 복잡하고 중요한 요소로 이루어져 있습니다. 이처럼 자바 파일의 실행 과정을 제대로 이해하기 위해서는 JVM에 대한 깊이 있는 학습이 필수적입니다.
 
 다음에 조금 더 자세하게 **JVM의 내부 구조**를 알아보겠습니다. 그리고 처음에 간단히 살펴봤던 자바의 실행 과정이 실제로는 어떻게 이루어지는지 마찬가지로 더 자세하게 알아보겠습니다.
+
+---
+**참고**
+
+- [Oracle JDK 17 Docs - JDK Tool Specifications](https://docs.oracle.com/en/java/javase/17/docs/specs/man/index.html)
+- [Oracle Java SE Technologies - Java SE 8 Platform](https://www.oracle.com/java/technologies/platform-glance.html)
+- [Baeldung - Difference Between JVM, JRE, and JDK](https://www.baeldung.com/jvm-vs-jre-vs-jdk)
+- [geeksforgeeks - Differences Between JDK, JRE, and JVM](https://www.geeksforgeeks.org/java/differences-jdk-jre-jvm/)
+- [Platform Engineer - Understanding JVM Architecture](https://medium.com/platform-engineer/understanding-jvm-architecture-22c0ddf09722)
+- Google Gemini
