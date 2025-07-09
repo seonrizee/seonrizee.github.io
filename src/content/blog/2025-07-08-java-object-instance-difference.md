@@ -75,11 +75,13 @@ public class Main {
 | **객체** | 클래스를 기반으로 **메모리에 생성된 실체** | 속성과 기능을 가진 '어떤 대상' 그 자체 | `myCar`, `yourCar` (실제로 존재하는 자동차들) |
 | **인스턴스** | **특정 클래스로부터 생성된 구체적인 객체를 지칭** | 객체와 클래스 간의 '생성 관계' | `myCar`는 `Car` 클래스의 **인스턴스**이다. |
 
-**즉, 모든 인스턴스는 객체이지만, 모든 객체를 인스턴스라고 부를 때는 '어떤 클래스의 인스턴스'인지 특정하는 의미가 내포됩니다.** Oracle에서 제공하는 자바 공식 가이드 dev.java에서도 아래와 같이 표현하고 있습니다.
+**즉, 모든 인스턴스는 객체이지만, 모든 객체를 인스턴스라고 부를 때는 '어떤 클래스의 인스턴스'인지 특정하는 의미가 내포됩니다.** Oracle에서 제공하는 자바 공식 튜토리얼 Dev.java에서도 아래와 같이 표현하고 있습니다.
 
-> *Note: The phrase "instantiating a class" means the same thing as "creating an object." When you create an object, you are creating an "instance" of a class, therefore "instantiating" a class.
-"클래스 인스턴스화"라는 표현은 "객체 생성"과 같은 의미입니다. 객체를 생성하면 클래스의 "인스턴스"가 생성되므로 클래스를 "인스턴스화"하는 것입니다.  
--**Java 공식 튜토리얼 ([dev.java](http://dev.java))**
+> The new operator instantiates a class by allocating memory for a new object and returning a reference to that memory. The new operator also invokes the object constructor.  
+*Note: The phrase "instantiating a class" means the same thing as "creating an object." When you create an object, you are creating an "instance" of a class, therefore "instantiating" a class.  
+new 연산자는 새 객체에 대한 메모리를 할당하고 해당 메모리에 대한 참조를 반환하여 클래스를 인스턴스화합니다. 또한, new 연산자는 객체 생성자를 호출합니다.  
+참고: "클래스 인스턴스화"라는 표현은 "객체 생성"과 같은 의미입니다. 객체를 생성하면 클래스의 "인스턴스"가 생성되므로 클래스를 "인스턴스화"하는 것입니다.  
+-**Java 공식 튜토리얼 ([Dev.java](https://dev.java/learn/classes-objects/creating-objects/#creating))**
 > 
 
 그러니까, 사실 `car` 클래스로부터 인스턴스화한 `myCar` 는 객체인 것도 맞고, 인스턴스인 것도 맞습니다. 하지만 myCar를 어떤 **목적과 맥락**으로 부르는지에 따라서 객체 혹은 인스턴스 2가지 중 하나라고 일컫는다고 생각하면 됩니다.
