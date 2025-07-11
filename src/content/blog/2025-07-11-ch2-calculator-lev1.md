@@ -224,7 +224,7 @@ Scanner에서 제공하는 `skip()` 을 사용하면 설정된 구분자는 무�
 
 다만 패턴에 사용되는 정규식의 복잡도와 불러오는 버퍼의 크기에 따라서 성능적으로 손해가 있을 수도 있습니다. 그 이유를 자세히 설명하자면 조금 복잡해집니다. 관심이 있으신 분은 `JavaSE` 공식 문서에 있는 [`skip()`](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Scanner.html#skip(java.util.regex.Pattern)) 에 대해 찾아보시면 될 것 같습니다. 
 
-1. **`nextLine()` 한 줄 추가해주기**
+2. **`nextLine()` 한 줄 추가해주기**
 
 확장성에는 어려움이 있을 수 있지만, 사용자로부터 입력을 받는 부분이 많지 않을 경우에는 가장 간단한 방법일 수도 있습니다. 남은 줄바꿈을 처리하기 위해 nextLine()을 한 줄 먼저 추가하여 줄바꿈만 입력받고 처리하도록 하면 됩니다.
 
@@ -255,7 +255,7 @@ public class ScannerTest {
 
 ```
 
-1. **nextLine()으로 통일해서 사용하기**
+3. **nextLine()으로 통일해서 사용하기**
 
 모든 입력에 대한 처리를 `nextLine()`으로 통일합니다. 대신 `nextLine()`의 리턴 타입은 `String`이므로 입력받은 내용에 대해서는 개발자가 개별적으로 입력에 대해 파싱 및 형 변환을 해줘야 합니다.
 
