@@ -190,7 +190,7 @@ public class ScannerTest4 {
 
 저는 저에게 익숙했던 3번 방법이 바로 떠올랐지만, 해결 방법은 생각보다 여러 가지가 있습니다. 
 
-1. **`Scanner.skip()`을 사용하여 명시적으로 개행을 스킵한다고 알려줄 수 있습니다.**
+1. **`Scanner.skip()`을 사용하여 명시적으로 개행을 스킵**
 
 ```java
 package exam250711;
@@ -224,7 +224,7 @@ Scanner에서 제공하는 `skip()` 을 사용하면 설정된 구분자는 무�
 
 다만 패턴에 사용되는 정규식의 복잡도와 불러오는 버퍼의 크기에 따라서 성능적으로 손해가 있을 수도 있습니다. 그 이유를 자세히 설명하자면 조금 복잡해집니다. 관심이 있으신 분은 `JavaSE` 공식 문서에 있는 [`skip()`](https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Scanner.html#skip(java.util.regex.Pattern)) 에 대해 찾아보시면 될 것 같습니다. 
 
-2. **`nextLine()` 한 줄 추가해주기**
+2. **`nextLine()` 한 줄 추가하기**
 
 확장성에는 어려움이 있을 수 있지만, 사용자로부터 입력을 받는 부분이 많지 않을 경우에는 가장 간단한 방법일 수도 있습니다. 남은 줄바꿈을 처리하기 위해 nextLine()을 한 줄 먼저 추가하여 줄바꿈만 입력받고 처리하도록 하면 됩니다.
 
