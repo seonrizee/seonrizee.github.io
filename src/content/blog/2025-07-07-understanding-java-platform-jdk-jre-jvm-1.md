@@ -4,7 +4,8 @@ summary: ""
 date: "July 07 2025"
 draft: false
 tags:
-- JAVA, JVM
+- JAVA
+- JVM
 ---
 
 최초 작성 날짜: 2025년 7월 7일
