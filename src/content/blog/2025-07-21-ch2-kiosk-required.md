@@ -9,7 +9,7 @@ tags:
 ---
 
 
-저번 [계산기 과제](https://seonrizee.github.io/blog/2025-07-15-ch2-calculator-lev3/)에 이어서 이번에는 키오스크를 Java를 이용하여 만드는 과제를 하고 있습니다. 이번에는 필수기능 Level 1~5, 도전기능 Level 1~2로 저번 과제보다 더 세분화되어 있습니다.
+저번 [계산기 과제](https://seonrizee.github.io/blog/2025-07-15-ch2-calculator-lev3/)에 이어서 이번에는 키오스크를 Java를 이용하여 만드는 과제를 하고 있습니다. 이번에는 필수기능 Level 1 ~ Level 5, 도전기능 Level 1 ~ Level 2로 저번 과제보다 더 세분화되어 있습니다.
 
 오늘은 필수 기능 Level 1~5 단계를 개발하면서 고민했었던 내용들에 대해 글을 작성해보려고 합니다.
 
