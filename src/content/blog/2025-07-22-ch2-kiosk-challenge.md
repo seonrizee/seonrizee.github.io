@@ -233,7 +233,107 @@ tags:
     
     ![image.png](img/2025-07-22-image-1.png)
     
+    
+## 5. **사용자 입력 처리의 중복 제거를 위한 메서드 구현**
 
+- **고민 내용**:
+기능이 많아지면서 콘솔로 사용자에게 숫자를 입력받는 곳이 많아졌습니다. 모든 곳에서 `Scanner`로 입력을 받고, `Integer.parseInt()`로 변환하며, `try-catch`로 예외를 처리하는 코드가 반복적으로 나타났습니다.
+또한, 각 입력마다 **유효한 입력값**의 범위(예: 1~5, 0~2)가 미묘하게 달랐는데, 이 검증을 위한 로직도 계속 중복해서 나타났습니다. 앞으로 구현해야 할 기능이 더 남아있었고, 입력을 받아야 하는 부분도 남아있다는 것을 의미했기 때문에 계속 비슷한 코드를 작성하는 것은 비효율적이라고 판단했습니다.
+- **해결 방향**:
+반복되는 전체 과정을 먼저 정리했습니다.
+    1. 숫자 입력을 받고
+    2. 유효성을 검증하여
+    3. 안전한 `int` 값으로 반환
+    
+    그리고 이 전체 과정을 `getUserInput()`이라는 단일 메서드로 추상화했습니다. 
+    
+    1. 입력을 받기 위해 `Scanner`클래스의 인스턴스와 유효 범위를 나타내는 값들을 매개변수로 받도록 합니다.
+    2. `Scanner`로부터 문자열 입력을 받습니다.
+    3. `Integer.parseInt()`로 숫자 변환을 시도하고, 실패 시 `NumberFormatException`을 처리합니다.
+    4. 파라미터로 받은 `min`, `max` 값으로 유효 범위를 검사하고, 벗어날 경우 `IndexOutOfBoundsException`을 처리합니다.
+    5. 유효한 입력이 들어올 때까지 `while(true)` 루프 안에서 위 과정을 반복합니다.
+    
+    이 리팩토링을 통해, 입력을 받는 다른 모든 메서드들은 더 이상 `try-catch`나 유효성 검증 로직을 신경 쓸 필요 없이, `getUserInput()`을 호출하여 **보장된 유효한 숫자 값**만 받아서 사용하는 데 집중할 수 있게 되었습니다.
+    
+    ```java
+    // KioskConsole.java 
+    
+    public class KioskConsole {
+    
+    		// ... 중략 ...
+    		
+    		/**
+    		 * 사용자로부터 정수 입력을 받고, 유효한 범위 내의 값인지 검증합니다.
+    		 *
+    		 * @param sc          사용자 입력을 받기 위한 {@link Scanner} 객체
+    		 * @param minValidIdx 입력 가능한 최소값
+    		 * @param maxValidIdx 입력 가능한 최대값
+    		 * @return 유효성이 검증된 사용자 입력 정수값
+    		 */
+    		public int getUserInput(Scanner sc, int minValidIdx, int maxValidIdx) {
+    		    while (true) {
+    		        try {
+    		            int input = Integer.parseInt(sc.nextLine());
+    		            if (input < minValidIdx || input > maxValidIdx) {
+    		                throw new IndexOutOfBoundsException();
+    		            }
+    		            return input;
+    		        } catch (NumberFormatException e) {
+    		            printError("숫자 형식으로 입력해주세요.");
+    		        } catch (IndexOutOfBoundsException e) {
+    		            printError("잘못된 번호를 입력하셨습니다. 키오스크의 번호를 입력해주세요.");
+    		        }
+    		    }
+    		}
+    		
+    		// ... 중략 ...
+    ```
+    
+    그리고 자주 사용되는 범위의 수는 **상수**(Constants)로 선언하여, `getUserInput()`을 호출하는 여러 곳에서 모두 사용하도록 했습니다. 입력되는 메뉴가 많아지고 체계적으로 관리를 해야 한다면 `Enum`을 도입해서 정리하는 것도 고려해볼 수 있을 것 같습니다.
+    
+    ```java
+    public class Kiosk {
+    
+        /**
+         * 사용자 입력에서 '종료' 또는 '뒤로 가기'를 나타내는 상수 인덱스.
+         */
+        private static final int EXIT_INDEX = 0;
+        
+        // ... 중략 ...
+        
+        /**
+         * 메인 메뉴 화면으로 메뉴 카테고리와 주문 옵션을 표시하고 사용자로부터 입력을 받아 로직을 처리합니다.
+         *
+         * @param sc 사용자 입력을 받기 위한 {@link Scanner} 객체
+         * @return 다음 화면 상태와 데이터를 담은 {@link ScreenIntent}
+         */
+        public ScreenIntent handleMainMenu(Scanner sc) {
+            final int MENU_SIZE = menuList.size();
+            final int CHECKOUT_INDEX = MENU_SIZE + 1;
+            final int UPDATE_INDEX = CHECKOUT_INDEX + 1;
+            final int LIMIT_INDEX = UPDATE_INDEX;
+    
+            console.displayMainOpening(CHECKOUT_INDEX, menuList, !cart.isCartEmpty());
+            int selectedIdx;
+            if (!cart.isCartEmpty()) {
+                selectedIdx = console.getUserInput(sc, EXIT_INDEX, LIMIT_INDEX); // 상수 활용
+            } else {
+                selectedIdx = console.getUserInput(sc, EXIT_INDEX, MENU_SIZE);
+            }
+            
+            // ... 중략 ...
+            
+    	 private void updateCart(Scanner sc, int selectedItemIdx, CartItem cartItem) {
+    	        final int UPDATE_SIZE = 3;
+    	
+    	        // ... 중략 ...
+    	
+    	        int selectedIdx = console.getUserInput(sc, EXIT_INDEX, UPDATE_SIZE); // 상수 활용
+    	        if (selectedIdx == EXIT_INDEX) {
+    	            return;
+    	        }
+    ```
+    
 # **느낀점 및 다음 계획**
 
 `LinkedHashMap`을 선택하는 과정에서 성능과 사용자 경험을 함께 고려하는 법을 배웠고, `Cart`의 책임을 분리하며 객체지향의 설계에 대해 고민했습니다. 또한 3번과 4번에 대해 고민하고 개발하면서 사용자 입장에서 어떤 기능이 필요하다고 생각이 든다면 개발자는 사용자의 경험을 고려하면서도, 개발자의 유지보수 난이도는 낮출 수 있는 변경에는 유연한 방법을 도출해야 한다고 생각을 했습니다. 또한 한 걸음 더 나아가, 간단한 것이라도 선제적으로 사용자가 필요한 기능에 대해서도 고민을 해보고 먼저 제안까지 할 수 있으면 좋겠다는 생각을 했습니다.
