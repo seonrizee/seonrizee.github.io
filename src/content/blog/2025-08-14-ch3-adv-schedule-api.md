@@ -11,13 +11,14 @@ tags:
 <!-- TOC -->
 
 - [1. 고민한 내용](#1-고민한-내용)
-    - [1.1. 여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치](#11-여러-곳에서-의존하는-findbyidorelsethrow-의-위치)
+    - [1.1. **여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치**](#11-여러-곳에서-의존하는-findbyidorelsethrow-의-위치)
     - [1.2. 댓글 관련 기능의 API를 RESTful하게 설계하기](#12-댓글-관련-기능의-api를-restful하게-설계하기)
     - [1.3. 반복되는 권한 검사를 없애보기](#13-반복되는-권한-검사를-없애보기)
     - [1.4. 현재 사용자 정보를 얻기 위해 필요한 과정을 추상화해보기](#14-현재-사용자-정보를-얻기-위해-필요한-과정을-추상화해보기)
-    - [1.5. JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택](#15-jpa-연관-관계-manytoone과-onetomany의-선택)
+    - [1.5. **JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택**](#15-jpa-연관-관계-manytoone과-onetomany의-선택)
     - [1.6. 드디어 만난 N+1 문제](#16-드디어-만난-n1-문제)
     - [1.7. 자동 생성되는 카운트 쿼리 최적화](#17-자동-생성되는-카운트-쿼리-최적화)
+    - [1.8. JPQL Projection 대상 DTO의 선언 방법 개선](#18-jpql-projection-대상-dto의-선언-방법-개선)
 - [2. 느낀점 및 다음 계획](#2-느낀점-및-다음-계획)
   - [2.1. 향후 개선 과제](#21-향후-개선-과제)
   - [2.2. 다짐](#22-다짐)
@@ -28,7 +29,7 @@ tags:
 
 # 1. 고민한 내용
 
-### 1.1. 여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치
+### 1.1. **여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치**
 
 여러 도메인의 `Service`에서 사용되는 특정 도메인의 기본 조회 및 `Null`에 대한 `exception`을 합친 메서드인 `findByIdOrElseThrow`함수의 위치에 관한 문제에 대해 답을 명확히 내리지 못했었습니다.
 
@@ -44,9 +45,9 @@ tags:
     
 3. **Respository Interface에 default 메서드로 작성**
     
-    원래 `default`메서드의 도입 취지를 고려하면, 옳은 방법은 아니라고 생각합니다. `default`메서드는 하위 호환을 위해 제공된 기능이며, 비즈니스 로직을 구현체가 아닌 인터페이스에 담기 위한 목적으로 생긴 것이 아니기 때문입니다.
+    원래 `default`메서드의 도입 취지를 고려하면, 옳은 방법은 아니라고 생각합니다. `default`메서드는 하위 호환을 위해 제공된 기능이며, 비즈니스 로직을 구현체가 아닌 인터페이스에 담기 위한 목적으로 생긴 것이 아니기 때문입니다. 물론 그래도 유틸성 메서드로 사용하는 경우가 많습니다.
     
-    그리고 비즈니스 로직에 의해 커스텀으로 정의한 `Exception`을 `Repository`에서 `throw`하는 게 맞는지도 애매합니다. 그러나, 별도의 패키지나 클래스 생성 없이 다른 `Service`들에서 쉽게 의존할 수 있기 때문에 구현상으로는 제일 간편합니다.
+    그리고 비즈니스 로직에 의해 커스텀으로 정의한 `Exception`을 `Repository`에서 `throw`하는 게 맞는지도 애매합니다. `Repository`의 책임과 예외 발생 책임이 합쳐지기 때문입니다. 어쨌든, 별도의 패키지나 클래스 생성 없이 다른 `Service`들에서 쉽게 의존할 수 있기 때문에 구현상으로는 제일 간편합니다.
     
 4. **별도의 조회 전용 QueryService 클래스를 만들어 작성**
     
@@ -66,13 +67,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
   ...
 ```
 
-3번을 적용했다가, 프로젝트 마지막에 4번을 적용했습니다. 단순 조회를 넘어 복잡한 쿼리나 통계까지 책임질 수 있도록, CQRS 패턴의 의도를 담은 `~QueryService`로 클래스들을 리팩토링했습니다. 기능과 그에 따른 `Service` 그리고 `Respository`가 많아질수록 순환 참조를 방지하는 것도 중요하다고 생각했습니다. 따라서, 메소드들을 명확하게 역할이 분리된 서비스로 구성하는 것이 중요한데 `Query`전용으로 분리하는 것이 이것의 출발이라고 생각하여 최종적으로 4번을 도입했습니다.
+3번을 적용했다가, 프로젝트 마지막에 4번을 적용했습니다. 단순 조회를 넘어 복잡한 쿼리나 통계까지 책임질 수 있도록, CQRS 패턴의 의도를 담은 `~QueryService`로 클래스들을 리팩토링했습니다. `QueryService` 분리가 단순히 코드 중복 제거를 넘어 기능과 그에 따른 `Service` 그리고 `Respository`가 많아질수록 순환 참조를 방지하는 것도 중요하다고 생각했습니다. 따라서, 메소드들을 명확하게 역할이 분리된 서비스로 구성하는 것이 중요한데 `Query`전용으로 분리하는 것이 이것의 출발이라고 생각하여 최종적으로 4번을 도입했습니다.
 
 ### 1.2. 댓글 관련 기능의 API를 RESTful하게 설계하기
 
 **고민 내용**: 댓글의 단건 조회/수정/삭제 API URL을 `/schedules/{scheduleId}/comments/{commentId}`로 해야 할지, `/comments/{commentId}`로 해야 할지 고민했습니다.
 
-**해결 방향**: 댓글은 그 자체로 고유 ID를 가진 독립적인 리소스라는 점에 집중했습니다. **Comment Entity와 comment 데이터베이스 테이블에서 표현하는 댓글의 id는 일정과는 관련없는 고유 ID**를 나타내기 때문입니다.
+**해결 방향**: 댓글은 그 자체로 고유 ID를 가진 독립적인 리소스라는 점에 집중했습니다. **Comment Entity와 comment 데이터베이스 테이블에서 표현하는 댓글의 id는 일정과는 관련없는 고유 ID**를 나타내기 때문입니다. 또한 댓글이라는 것이 지금은 일정이지만, 다양한 엔티티에서 사용될 수도 있습니다. 이런 경우 계층이 URL에 포함되면 번거로울 수 있다고 생각했습니다.
 
 따라서 특정 댓글 하나를 다루는 행위는 `/comments/{commentId}`로 설계하는 것이 더 RESTful하다고 결론 내렸습니다. 반면, 댓글 생성이나 목록 조회는 특정 일정에 종속되므로 `/schedules/{scheduleId}/comments`를 사용했습니다.
 
@@ -210,7 +211,7 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
 
 정리하면 `Resolver`는 세션에서 `userId`를 꺼내 DB에서 최신 `User` 엔티티를 조회한 뒤, 컨트롤러 파라미터에 바로 주입해 줍니다. 이를 통해, 로그인한 유저 정보가 필요한 곳에는 반복적인 코드 없이 편리하게 유저 정보를 가져올 수 있게 되었고, 서비스에는 순수히 구현하고자 하는 비즈니스 로직 관련 코드에 더욱 집중할 수 있게 되었습니다.
 
-### 1.5. JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택
+### 1.5. **JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택**
 
 **고민 내용**: Spring Data JPA를 사용할 때 `@ManyToOne`만으로도 충분한 경우가 많다고 들었습니다. 하지만 `@OneToMany`나 양방향 관계를 반드시 사용해야 하는 경우는 언제인지 궁금했습니다. 특히, 일정에 달린 **댓글** 목록을 조회하는 경우 어떤 관계가 더 적합할지 고민되었습니다.
 
@@ -236,7 +237,7 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
     }
     ```
     
-    이전에는 `scheduleId`를 통해 별도의 댓글을 가져오는 쿼리가 필요했고 `DTO`에서 두 데이터를 조합했는데, 양방향 연관관계를 이용하면 한 번의 쿼리로 댓글 모두를 가져오는 등 성능상 이점과 더불어 도메인 모델의 응집성을 높일 수 있습니다. 그리고 `cascade`, `orphanRemoval` 등의 옵션을 통해서 고아 객체 관리 등도 할 수 있어서 편리합니다.
+    이전에는 `scheduleId`를 통해 별도의 댓글을 가져오는 쿼리가 필요했고 `DTO`에서 두 데이터를 조합했는데, 양방향 연관관계와 더불어 `fetch join`이나 `EntityGraph` 를 이용하면 한 번의 쿼리로 댓글 모두를 가져오는 등 성능상 이점과 더불어 도메인 모델의 응집성을 높일 수 있습니다. 그리고 `cascade`, `orphanRemoval` 등의 옵션을 통해서 고아 객체 관리 등도 할 수 있어서 편리합니다.
     
     대신, 반드시 양방 관계의 일관성을 유지하기 위해 연관관계 편의 메서드를 통해 양쪽의 객체를 모두 업데이트하는 과정이 필요합니다.
     
@@ -257,7 +258,13 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
 
 **고민 내용**: 일정 목록 조회 기능에 페이징을 도입하면서 각 일정의 댓글 개수도 나타내야 했습니다. 이때 각 일정의 댓글 개수를 `schedule.getComments().size()`로 가져오니까, 각 일정 마다 댓글 목록을 가져오기 위해서 일정(N)만큼 추가 댓글에 대한 쿼리가 발생하는 `N+1` 문제가 발생했습니다.
 
-**해결 방향**: 이 때 어차피 해결을 JPQL로 해야 한다면, **JPQL에서 DTO로 직접 조회**하는 방식에 도전해보기로 했습니다. `JOIN`과 `COUNT`를 사용하여 단 한 번의 쿼리로 일정 정보와 댓글 개수를 모두 가져오도록 쿼리를 최적화했습니다. 이 과정을 통해 쿼리 횟수를 `N+1`에서 단 `2`회(데이터 쿼리, 카운트 쿼리)로 줄일 수 있었습니다.
+**해결 방향**: 이 때 저는 직접 쿼리를 작성하여 N+1을 해결하기로 했습니다. 이 때 쿼리는 SQL이 아니라 `JPQL`이라는 언어를 사용할 수 있습니다. 
+
+`JPQL`은 (Java Persistence Query Language)로 쿼리를 테이블에 대한 SQL 형식이 아니라, 엔티티 객체를 대상으로 한 쿼리입니다. 그래서 SQL과 유사한데 대상이 엔티티라고 생각하면 됩니다.  따라서, `Join`같은 기존 SQL의 문법을 사용할 수 있습니다.
+
+그리고 해결을 `JPQL`로 할거라면, **JPQL에서 DTO로** `Projection`하는 방식에 도전해보기로 했습니다. `Projection`은 아래 **JPQL Projection 대상 DTO의 선언 방법 개선**에서 설명하겠습니다.
+
+`JOIN`과 `COUNT`를 사용하여 단 한 번의 쿼리로 일정 정보와 댓글 개수를 모두 가져오도록 쿼리를 최적화했습니다. 이 과정을 통해 쿼리 횟수를 `N+1`에서 단 `2`회(데이터 쿼리, 카운트 쿼리)로 줄일 수 있었습니다. 참고로 페이징을 위한 `Pageable` 을 사용하게 되면 **count 쿼리는 무조건 실행**되게 됩니다.
 
 ```java
 // ScheduleRepository.java
@@ -273,7 +280,7 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
             )
             FROM Schedule s
             JOIN s.user u
-            LEFT JOIN s.comments c
+            LEFT JOIN s.comments
             GROUP BY s.id, u.id
             """)
     Page<SchedulePageResponse> findWithCommentCount(Pageable pageable);
@@ -281,44 +288,97 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
 
 ### 1.7. 자동 생성되는 카운트 쿼리 최적화
 
-- **고민 내용**: 그런데 카운트 쿼리에 대해서 알게 되니 불안한 마음이 생겼습니다. 지금은 데이터가 적지만, 데이터가 많아질수록 페이징을 위해 전체 데이터 개수를 세는 `count` 쿼리 자체가 문제를 일으킬 수도 있다는 생각이 들었습니다.
-    
-    ```sql
-    # 자동 생성된 카운트 쿼리
-    Hibernate: 
-        /* SELECT
-            count(s) 
-        FROM
-            Schedule s 
-        JOIN
-            s.user u 
-        LEFT JOIN
-            s.comments c 
-        GROUP BY
-            s.id,
-            u.id */ select
-                count(s1_0.schedule_id) 
-            from
-                schedule s1_0 
-            join
-                user u1_0 
-                    on u1_0.user_id=s1_0.user_id 
-            left join
-                comment c1_0 
-                    on s1_0.schedule_id=c1_0.schedule_id 
-            group by
-                s1_0.schedule_id,
-                u1_0.user_id
-    ```
-    
-    왜냐하면, Spring Data JPA가 자동으로 생성하는 카운트 쿼리를 확인해보니 **데이터를 가져오는 원래 쿼리의 `JOIN`과 `WHERE` 절을 그대로 사용**하고 있었습니다. 단순히 행의 개수만 세면 되는데, 불필요하게 복잡한 `JOIN` 연산을 수행하므로 데이터가 많아질수록 더욱 느려질 것이 당연히 예상되었습니다.
-    
-- **해결 방향**: 제가 이런 걱정 할 것을 알기라도 하는 듯이, Spring Data JPA는 자동으로 생성되는 복잡한 카운트 쿼리 대신 임의로 카운트 쿼리를 작성할 수 있도록 도구를 제공하고 있었습니다.
-    
-    Spring Data JPA의 `@Query` 어노테이션에 **`countQuery` 속성**을 제공했습니다. 따라서 저는, `count`만을 위한 최적화된 쿼리를 별도로 작성했습니다. 이를 통해 불필요한 `JOIN`을 제거했습니다. 더 나아가, 무한 스크롤 UI를 위해 `Page` 대신 `Slice`를 사용하여 카운트 쿼리 자체를 생략하는 방법도 생각해 볼 수 있었습니다. 
-    
-    ```sql
-    @Query(value = """
+**고민 내용**: 앞에서 카운트 쿼리에 대해서 알게 되니 불안한 마음이 생겼습니다. 지금은 데이터가 적지만, 데이터가 많아질수록 페이징을 위해 전체 데이터 개수를 세는 `count` 쿼리 자체가 문제를 일으킬 수도 있다는 생각이 들었습니다. 
+```sql
+# 자동 생성된 카운트 쿼리
+Hibernate: 
+    /* SELECT
+        count(s) 
+    FROM
+        Schedule s 
+    JOIN
+        s.user u 
+    LEFT JOIN
+        s.comments c 
+    GROUP BY
+        s.id,
+        u.id */ select
+            count(s1_0.schedule_id) 
+        from
+            schedule s1_0 
+        join
+            user u1_0 
+                on u1_0.user_id=s1_0.user_id 
+        left join
+            comment c1_0 
+                on s1_0.schedule_id=c1_0.schedule_id 
+        group by
+            s1_0.schedule_id,
+            u1_0.user_id
+```
+
+왜냐하면, Spring Data JPA가 자동으로 생성하는 카운트 쿼리를 확인해보니 **데이터를 가져오는 원래 쿼리의 `JOIN`과 `WHERE` 절을 그대로 사용**하고 있었습니다. 단순히 행의 개수만 세면 되는데, 불필요하게 복잡한 `JOIN` 연산을 수행하므로 데이터가 많아질수록 더욱 느려질 것이 당연히 예상되었습니다.
+
+**해결 방향**: 제가 이런 걱정 할 것을 알기라도 하는 듯이, Spring Data JPA는 자동으로 생성되는 복잡한 카운트 쿼리 대신 임의로 카운트 쿼리를 작성할 수 있도록 도구를 제공하고 있었습니다.
+
+Spring Data JPA의 `@Query` 어노테이션에 **`countQuery` 속성**을 제공했습니다. 따라서 저는, `count`만을 위한 최적화된 쿼리를 별도로 작성했습니다. 이를 통해 불필요한 `JOIN`을 제거했습니다. 더 나아가, 무한 스크롤 UI를 위해 `Page` 대신 `Slice`를 사용하여 카운트 쿼리 자체를 생략하는 방법도 생각해 볼 수 있었습니다. 
+
+```sql
+@Query(value = """
+    SELECT s.id AS id,
+            s.summary AS summary,
+            s.description AS description,
+            COUNT(c) AS commentCount,
+            u.id AS userId,
+            u.username AS username,
+            s.createdAt AS createdAt,
+            s.updatedAt AS updatedAt
+    FROM Schedule s
+    JOIN s.user u
+    LEFT JOIN s.comments c
+    GROUP BY s.id, u.id
+    """,
+    countQuery = "SELECT count(s) FROM Schedule s") <- 최적화한 카운트 쿼리
+Page<SchedulePageResponse> findWithCommentCount(Pageable pageable);
+```
+
+### 1.8. JPQL Projection 대상 DTO의 선언 방법 개선
+
+**고민 내용**: 위의 [1.6. 드디어 만난 N+1 문제](#16-드디어-만난-n1-문제)를 보면 `JPQL`을 통해 `dto`로 바로 반환하고 있습니다. 이것은 `Projection`을 이용하고 있는 것입니다. `Projection`은 사용자가 지정한 유형의 객체의 데이터만을 조회하도록 하고, 해당 데이터를 이용하여 바로 객체를 생성하는 기능입니다.
+
+`JPQL`을 통해 직접 쿼리를 작성하면 반환하는 데이터 형식도 원하는 형태가 되기 때문에 이를 `dto`로 만들고 `Projection`을 적용하면 편리해집니다.
+
+그런데 다시 코드를 보면 제가 `JPQL`에 지정한 유형의 `dto`객체인 `SchedulePageResponse`의 패키지 경로를 모두 적어주고 있습니다. **하드코딩**이 문제를 야기할 수도 있다는 사실은 인지할 수 있습니다. 그런데 저는 패키지 구조를 도메인 중심으로 변경하여 실제로 변화가 있었고,  JPQL에 명시한 패키지를 바꾸려고 하니, 이 방법을 개선하면 좋겠다는 생각을 하게 되었습니다.
+
+**해결 방향**: `Prjoection`으로 꺼내온 데이터를 저장할 객체 타입은 클래스와 인터페이스 2가지를 사용할 수 있습니다. 그래서 이전에 class로 선언한 dto를 그대로 재활용할 수 있습니다. 다만, 지정한 타입으로 객체 생성까지 해주는 만큼 굳이 따로 dto를 클래스를 생성할 일이 없기 때문에 인터페이스로 선언하기로 했습니다.
+
+여기서 다 언급하지는 않고 넘어가지만, 가짜 객체인 **프록시 객체**를 활용하여 dto 객체 생성을 하게 됩니다.
+
+```java
+package io.github.seonrizee.scheduler.domain.schedule.dto.response;
+
+/**
+ * 일정 목록 조회를 위한 응답 DTO 인터페이스.
+ * JPQL 프로젝션을 사용하여 필요한 데이터만 선택적으로 조회합니다.
+ */
+public interface SchedulePageResponse {
+
+    Long getId();
+    String getSummary();
+    String getDescription();
+    Long getCommentCount();
+    Long getUserId();
+    String getUsername();
+    java.time.LocalDateTime getCreatedAt();
+    java.time.LocalDateTime getUpdatedAt();
+}
+
+```
+
+이렇게 인터페이스를 선언하고 나면 선언한 인터페이스의 메서드 이름과 일치하는 별칭을 `SELECT`문의 각 필드에 기입해주면 됩니다.
+
+```java
+@Query(value = """
         SELECT s.id AS id,
                 s.summary AS summary,
                 s.description AS description,
@@ -332,12 +392,14 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
         LEFT JOIN s.comments c
         GROUP BY s.id, u.id
         """,
-        countQuery = "SELECT count(s) FROM Schedule s") <- 최적화한 카운트 쿼리
-    Page<SchedulePageResponse> findWithCommentCount(Pageable pageable);
-    ```
-    
+        countQuery = "SELECT count(s) FROM Schedule s")
+Page<SchedulePageResponse> findWithCommentCount(Pageable pageable);
+```
+
+이렇게 하면 저의 경우는 메소드의 반환형 중 제네릭으로 입력한 `SchedulePageResponse` 인터페이스를 이용하여 반환하게 됩니다. 이렇게 해서 `projection`반환형에 대한 하드코딩을 지울 수 있게 되었습니다.
 
 # 2. 느낀점 및 다음 계획
+
 ORM을 사용해본적이 없는 상태에서 바로 Spring Data JPA를 사용해보니, JDBC는 물론이고 SQL Mapper들에 비해서도 생산성이 상당히 높다고 느꼈습니다. 물론 복잡한 비즈니스 요구사항이 필요하게 되면 결국은 Query DSL을 사용하든, JPQL을 사용하든 SQL 기반으로도 문제에 대해 어느 정도 고려를 해야할 수도 있습니다.
 
 그래도 기본적으로 객체와 추상화된 메소드 기반으로 개발을 하니 객체지향과 SQL을 왔다갔다하는 스위칭을 하지 않아도 되고 아무래도 코드 기반으로 개발하니 특히 기본적인 CRUD 개발에 대해서는 기본적으로 매우 편리하다고 느꼈습니다.
