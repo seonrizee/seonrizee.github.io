@@ -11,11 +11,11 @@ tags:
 <!-- TOC -->
 
 - [1. 고민한 내용](#1-고민한-내용)
-    - [1.1. **여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치**](#11-여러-곳에서-의존하는-findbyidorelsethrow-의-위치)
+    - [1.1. 여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치](#11-여러-곳에서-의존하는-findbyidorelsethrow-의-위치)
     - [1.2. 댓글 관련 기능의 API를 RESTful하게 설계하기](#12-댓글-관련-기능의-api를-restful하게-설계하기)
     - [1.3. 반복되는 권한 검사를 없애보기](#13-반복되는-권한-검사를-없애보기)
     - [1.4. 현재 사용자 정보를 얻기 위해 필요한 과정을 추상화해보기](#14-현재-사용자-정보를-얻기-위해-필요한-과정을-추상화해보기)
-    - [1.5. **JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택**](#15-jpa-연관-관계-manytoone과-onetomany의-선택)
+    - [1.5. JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택](#15-jpa-연관-관계-manytoone과-onetomany의-선택)
     - [1.6. 드디어 만난 N+1 문제](#16-드디어-만난-n1-문제)
     - [1.7. 자동 생성되는 카운트 쿼리 최적화](#17-자동-생성되는-카운트-쿼리-최적화)
     - [1.8. JPQL Projection 대상 DTO의 선언 방법 개선](#18-jpql-projection-대상-dto의-선언-방법-개선)
@@ -29,7 +29,7 @@ tags:
 
 # 1. 고민한 내용
 
-### 1.1. **여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치**
+### 1.1. 여러 곳에서 의존하는 `findByIdOrElseThrow()` 의 위치
 
 여러 도메인의 `Service`에서 사용되는 특정 도메인의 기본 조회 및 `Null`에 대한 `exception`을 합친 메서드인 `findByIdOrElseThrow`함수의 위치에 관한 문제에 대해 답을 명확히 내리지 못했었습니다.
 
@@ -123,7 +123,7 @@ public class AuthorizationService {
 
 이렇게 해서 필요한 곳에서는 `AuthorizationService`를 주입받아서 `validateOwnership()`를 실행하는 방식으로 구현했습니다.
 
-그러다가, 프로젝트 막바지에 유저를 삭제할 때도 본인 확인을 해야겠다는 생각으로, 리팩터링을 하는 중에 `User` 클래스의 객체를 검증해야 하는 로직이 필요했습니다. 이 때, `Ownable`의 목적이 엔티티가 `User`라는 객체를 가지고 있어서 이 권한을 사용할 수 있다는 증표같은 것이었는데, `User`엔티티로 생성된 `User`가 다시 `ownable`를 구현해야 한다는 게 논리적으로 맞지 않다고 생각했습니다.
+그러다가, 프로젝트 막바지에 사용자를 삭제할 때도 본인 확인을 해야겠다는 생각으로, 리팩터링을 하는 중에 `User` 클래스의 객체를 검증해야 하는 로직이 필요했습니다. 이 때, `Ownable`의 목적이 엔티티가 `User`라는 객체를 가지고 있어서 이 권한을 사용할 수 있다는 증표같은 것이었는데, `User`엔티티로 생성된 `User`가 다시 `ownable`를 구현해야 한다는 게 논리적으로 맞지 않다고 생각했습니다.
 
 따라서, `Ownable` 인터페이스를 삭제하고, `User`의 고유식별자를 가져올 수 있는 객체면 모두 사용할 수 있도록 제네릭과 함수형 인터페이스를 사용하여 메소드를 개선했습니다.
 
@@ -144,7 +144,7 @@ public <T> void validateOwnership(T entity, User loginUser, ToLongFunction<T> ow
 
 **고민 내용**: 현재 로그인하고 있는 사용자 정보가 필요한 모든 컨트롤러 메서드에서 `HttpSession`을 통해 `userId`를 가져오고, 이 `userId`를  `userFinder.findUserOrThrow(userId)`를 호출하는 코드가 반복되었습니다. 그래서 이 과정도 공통되는 코드를 줄이기 위해 추상화하는 것이 좋다고 생각했습니다.
 
-**해결 방향**: 어노테이션을 만들고, 어노테이션을 선언한 파라미터를 통해서 필요한 유저 정보를 받아오도록 하면, `Controller`의 메소드에서 `httpSession`을 통해 `userId`를 받아오는 것보다 편리할 것이라고 ㅅ생각했습니다. 그래서 `@LoginUser`라는 커스텀 어노테이션을 만들었습니다. 
+**해결 방향**: 어노테이션을 만들고, 어노테이션을 선언한 파라미터를 통해서 필요한 사용자 정보를 받아오도록 하면, `Controller`의 메소드에서 `httpSession`을 통해 `userId`를 받아오는 것보다 편리할 것이라고 ㅅ생각했습니다. 그래서 `@LoginUser`라는 커스텀 어노테이션을 만들었습니다. 
 
 ```java
 // LoginUser.java
@@ -155,7 +155,7 @@ public @interface LoginUser {
 }
 ```
 
-그 다음은  선언한 어노테이션에 현재 로그인된 유저의 정보를 매핑하는 과정이 필요했는데 이 과정은 `HandlerMethodArgumentResolver`를 구현해야 했습니다.
+그 다음은  선언한 어노테이션에 현재 로그인된 사용자의 정보를 매핑하는 과정이 필요했는데 이 과정은 `HandlerMethodArgumentResolver`를 구현해야 했습니다.
 
 `HandlerMethodArgumentResolver`는 컨트롤러 메서드에서 특정 조건에 맞는 파라미터가 있을 때 원하는 값을 바인딩해주는 인터페이스로 딱 원하는 역할을 하는 인터페이스였습니다. 그리고 인터페이스이므로 구현해야 하는 메소드가 있습니다.
 
@@ -207,11 +207,11 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
 
 ```
 
-여기서 유저에 대한 정보를 가지고 있는 `Session`에서 `userId`를 가져왔고, 이를 관련 조회 서비스의 메소드를 사용하여 `User`객체를 가져왔습니다. 그리고 이를 반환하도록 하여 `Resolver`를 완성했습니다.
+여기서 사용자에 대한 정보를 가지고 있는 `Session`에서 `userId`를 가져왔고, 이를 관련 조회 서비스의 메소드를 사용하여 `User`객체를 가져왔습니다. 그리고 이를 반환하도록 하여 `Resolver`를 완성했습니다.
 
-정리하면 `Resolver`는 세션에서 `userId`를 꺼내 DB에서 최신 `User` 엔티티를 조회한 뒤, 컨트롤러 파라미터에 바로 주입해 줍니다. 이를 통해, 로그인한 유저 정보가 필요한 곳에는 반복적인 코드 없이 편리하게 유저 정보를 가져올 수 있게 되었고, 서비스에는 순수히 구현하고자 하는 비즈니스 로직 관련 코드에 더욱 집중할 수 있게 되었습니다.
+정리하면 `Resolver`는 세션에서 `userId`를 꺼내 DB에서 최신 `User` 엔티티를 조회한 뒤, 컨트롤러 파라미터에 바로 주입해 줍니다. 이를 통해, 로그인한 사용자 정보가 필요한 곳에는 반복적인 코드 없이 편리하게 사용자 정보를 가져올 수 있게 되었고, 서비스에는 순수히 구현하고자 하는 비즈니스 로직 관련 코드에 더욱 집중할 수 있게 되었습니다.
 
-### 1.5. **JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택**
+### 1.5. JPA 연관 관계: `@ManyToOne`과 `@OneToMany`의 선택
 
 **고민 내용**: Spring Data JPA를 사용할 때 `@ManyToOne`만으로도 충분한 경우가 많다고 들었습니다. 하지만 `@OneToMany`나 양방향 관계를 반드시 사용해야 하는 경우는 언제인지 궁금했습니다. 특히, 일정에 달린 **댓글** 목록을 조회하는 경우 어떤 관계가 더 적합할지 고민되었습니다.
 
@@ -260,11 +260,11 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
 
 **해결 방향**: 이 때 저는 직접 쿼리를 작성하여 N+1을 해결하기로 했습니다. 이 때 쿼리는 SQL이 아니라 `JPQL`이라는 언어를 사용할 수 있습니다. 
 
-`JPQL`은 (Java Persistence Query Language)로 쿼리를 테이블에 대한 SQL 형식이 아니라, 엔티티 객체를 대상으로 한 쿼리입니다. 그래서 SQL과 유사한데 대상이 엔티티라고 생각하면 됩니다.  따라서, `Join`같은 기존 SQL의 문법을 사용할 수 있습니다.
+`JPQL`은 (Java Persistence Query Language)로 쿼리를 테이블에 대한 SQL 형식이 아니라, **엔티티와 엔티티의 필드를 대상**으로 한 쿼리입니다. SQL과 문법이 유사하며 실행 시점에 JPA가 이를 SQL로 변환해 데이터베이스 전달합니다. 문법이 유사하기 때문에 `Join`같은 기존 SQL의 문법을 사용할 수 있습니다.
 
 그리고 해결을 `JPQL`로 할거라면, **JPQL에서 DTO로** `Projection`하는 방식에 도전해보기로 했습니다. `Projection`은 아래 **JPQL Projection 대상 DTO의 선언 방법 개선**에서 설명하겠습니다.
 
-`JOIN`과 `COUNT`를 사용하여 단 한 번의 쿼리로 일정 정보와 댓글 개수를 모두 가져오도록 쿼리를 최적화했습니다. 이 과정을 통해 쿼리 횟수를 `N+1`에서 단 `2`회(데이터 쿼리, 카운트 쿼리)로 줄일 수 있었습니다. 참고로 페이징을 위한 `Pageable` 을 사용하게 되면 **count 쿼리는 무조건 실행**되게 됩니다.
+`JOIN`과 `COUNT`를 사용하여 단 한 번의 쿼리로 일정 정보와 댓글 개수를 모두 가져오도록 쿼리를 최적화했습니다. 이 과정을 통해 쿼리 횟수를 **N+1**에서 **1회**로 줄일 수 있었습니다. 참고로 페이징을 위한 `Pageable` 을 사용하게 되면 전체 데이터 개수 계산을 위한 **카운트 쿼리**가 반드시 실행됩니다. 따라서, 총 2번의 쿼리가 실행되었습니다.
 
 ```java
 // ScheduleRepository.java
@@ -286,11 +286,41 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
     Page<SchedulePageResponse> findWithCommentCount(Pageable pageable);
 ```
 
+**Fetch join을 이용한 N+1 해결**
+
+추가적으로 댓글 목록 조회 API의 경우, 특정 일정의 댓글 목록을 조회할 수 있도록 개발했습니다. 이 경우에도 N+1 문제가 발생할 수 있습니다. 댓글에는 댓글을 작성한 사용자의 정보가 포함되어 있습니다. 따라서 댓글을 작성한 사람이 1명이면 상관없지만, **최악의 경우로 댓글을 단 사람이 모두 다른 사람이면 댓글의 수만큼 N번 조회**가 추가로 이루어지게 됩니다. 
+
+```java
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+
+    /**
+     * 특정 일정 ID에 해당하는 모든 댓글을 작성자 정보와 함께 조회합니다.
+     * @param scheduleId 조회할 일정의 ID
+     * @return 댓글 목록
+     */
+    @Query("SELECT c FROM Comment c JOIN FETCH c.user WHERE c.schedule.id = :scheduleId")
+    List<Comment> findAllWithUserByScheduleId(@Param("scheduleId") Long scheduleId);
+}
+```
+
+그래서 마찬가지로 `JPQL`을 사용하여 직접 쿼리를 작성합니다. 다만 여기서 `JOIN FETCH` 이라는 처음 보는 Join 유형을 사용해야 합니다.
+
+`JOIN FETCH`는 JPQL에서만 사용되는 특별한 기능으로, 일반적인 SQL의 `JOIN`과는 목적이 다릅니다.
+
+- **일반 `JOIN`**: 데이터베이스 테이블을 연결하여 `WHERE` 절에서 **필터링**하거나, 여러 테이블의 컬럼을 선택하는 역할을 합니다.
+- **`JOIN FETCH`**: JPA 레벨에서 `JOIN`을 통해 연관된 엔티티를 조회하면서, 그 **연관된 엔티티의 데이터까지 미리 로딩 (Eager Loading)하여 영속성 컨텍스트에 올려놓는** 역할을 합니다.
+
+이 `JOIN FETCH` 덕분에, `findAllWithUserByScheduleId` 메서드는 단 한 번의 쿼리로 댓글 목록과 각 댓글에 필요한 모든 사용자 정보를 가져옵니다. 그 후 서비스 로직에서 `comment.getUser().getUsername()`을 호출하더라도, 이미 사용자 정보가 영속성 컨텍스트에 로드되어 있기 때문에 추가적인 쿼리가 발생하지 않습니다.
+
+결과적으로, 댓글(1) + 사용자(N) 만큼 발생하던 쿼리가 **단 한 번의 쿼리**로 최적화되어 N+1 문제를 해결할 수 있었습니다. 
+
+단, **컬렉션(fetch join 대상)이 있는 엔티티를 페이징 처리**할 경우, 데이터베이스가 아닌 메모리에서 페이징이 동작하여 성능 문제가 생길 수 있다는 경고가 발생합니다. 이는 1:N 조인으로 인해 데이터가 뻥튀기되어 DB 레벨에서 정확한 페이징이 불가능하기 때문이며, 이 문제를 해결하기 위해 `@BatchSize`를 사용하거나 DTO 프로젝션을 활용하는 등의 추가적인 최적화 방법을 고려해야 한다고 합니다. 이 부분은 저도 더 학습이 필요할 것 같습니다.
+
 ### 1.7. 자동 생성되는 카운트 쿼리 최적화
 
-**고민 내용**: 앞에서 카운트 쿼리에 대해서 알게 되니 불안한 마음이 생겼습니다. 지금은 데이터가 적지만, 데이터가 많아질수록 페이징을 위해 전체 데이터 개수를 세는 `count` 쿼리 자체가 문제를 일으킬 수도 있다는 생각이 들었습니다. 
+**고민 내용**: 카운트 쿼리에 대해서 알게 되니 불안한 마음이 생겼습니다. 지금은 데이터가 적지만, 데이터가 많아질수록 페이징을 위해 전체 데이터 개수를 세는 `count` 쿼리 자체가 문제를 일으킬 수도 있다는 생각이 들었습니다. 
+
 ```sql
-# 자동 생성된 카운트 쿼리
 Hibernate: 
     /* SELECT
         count(s) 
