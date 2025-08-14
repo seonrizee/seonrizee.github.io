@@ -262,7 +262,7 @@ public class LoginUserIdArgumentResolver implements HandlerMethodArgumentResolve
 
 `JPQL`은 (Java Persistence Query Language)로 쿼리를 테이블에 대한 SQL 형식이 아니라, **엔티티와 엔티티의 필드를 대상**으로 한 쿼리입니다. SQL과 문법이 유사하며 실행 시점에 JPA가 이를 SQL로 변환해 데이터베이스 전달합니다. 문법이 유사하기 때문에 `Join`같은 기존 SQL의 문법을 사용할 수 있습니다.
 
-그리고 해결을 `JPQL`로 할거라면, **JPQL에서 DTO로** `Projection`하는 방식에 도전해보기로 했습니다. `Projection`은 아래 **JPQL Projection 대상 DTO의 선언 방법 개선**에서 설명하겠습니다.
+그리고 해결을 `JPQL`로 할거라면, **JPQL에서 DTO로** `Projection`하는 방식에 도전해보기로 했습니다. `Projection`은 아래 [1.8. JPQL Projection 대상 DTO의 선언 방법 개선](#18-jpql-projection-대상-dto의-선언-방법-개선)에서 설명하겠습니다.
 
 `JOIN`과 `COUNT`를 사용하여 단 한 번의 쿼리로 일정 정보와 댓글 개수를 모두 가져오도록 쿼리를 최적화했습니다. 이 과정을 통해 쿼리 횟수를 **N+1**에서 **1회**로 줄일 수 있었습니다. 참고로 페이징을 위한 `Pageable` 을 사용하게 되면 전체 데이터 개수 계산을 위한 **카운트 쿼리**가 반드시 실행됩니다. 따라서, 총 2번의 쿼리가 실행되었습니다.
 
