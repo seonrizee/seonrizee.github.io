@@ -8,7 +8,6 @@ tags:
 - 프로젝트
 ---
 
-
 <!-- TOC -->
 
 - [1. 과제 해결](#1-과제-해결)
@@ -28,10 +27,16 @@ tags:
     - [2.2. AOP 구현 (상세 로깅)](#22-aop-구현-상세-로깅)
     - [3. 결과](#3-결과)
   - [Lv 6. ‘내’가 정의한 문제와 해결 과정](#lv-6-내가-정의한-문제와-해결-과정)
+    - [1. Controller 메소드들의 반환 타입을 ResponseEntity로 명시적으로 통일](#1-controller-메소드들의-반환-타입을-responseentity로-명시적으로-통일)
+    - [2. DTO Validation 강화](#2-dto-validation-강화)
+    - [3. ManagerController의 deleteManager 메소드에서 @Auth 사용하도록 개선](#3-managercontroller의-deletemanager-메소드에서-auth-사용하도록-개선)
+    - [4. 비밀번호 변경 시 변경 로직 순서 개선](#4-비밀번호-변경-시-변경-로직-순서-개선)
+    - [5. deleteComent method에서 comment 존재 여부에 대한 확인 로직 추가](#5-deletecoment-method에서-comment-존재-여부에-대한-확인-로직-추가)
   - [Lv 7. 테스트 커버리지](#lv-7-테스트-커버리지)
 - [2. 느낀점 및 다음 계획](#2-느낀점-및-다음-계획)
 
 <!-- /TOC -->
+
 이번 과제는, 이미 작성되어 있는 코드를 문제 요구사항에 따라 주로 개선하는 과제였습니다. 따라서, 개선하는데 필요한 내용들인 테스트 코드나 `interceptor`, `aop`등 을 학습하면서 개발했습니다.
 
 # 1. 과제 해결
@@ -517,12 +522,150 @@ Interceptor와 AOP 개발을 통해 위처럼 로그를 확인할 수 있게 되
 
 ## Lv 6. ‘내’가 정의한 문제와 해결 과정
 
+### 1. Controller 메소드들의 반환 타입을 ResponseEntity로 명시적으로 통일
+
+- **문제 인식**
+    
+    일부 컨트롤러의 메서드는 DTO를 직접 반환하고 있었고, 다른 메서드는 `ResponseEntity`를 사용하는 등 반환 타입이 일관되지 않았습니다. 이로 인해 HTTP 상태 코드를 일관성있게 사용하기 어렵고, 클라이언트에서 파싱하기에 불편할 것이라고 생각했습니다.
+    
+- **해결 과정**
+    
+    반환에 사용되는 `DTO`가 존재하는 경우에는 `ResponseEntity`을 제네릭으로 감싸서 반환했습니다. 그리고 204 등 반환 타입이 `void` 인 경우에도 `ResponseEntity<Void>`로 일관성있게 작성했습니다. 그리고 감싸는 과정에서 `ResponseEntity`의 정적 메서드를 사용할 수 있는 경우에는 정적 메서드를 사용했습니다. 
+    
+    ![image.png](img/2025-09-01-image-3.png)
+    
+    ![image.png](img/2025-09-01-image-4.png)
+    
+    ![image.png](img/2025-09-01-image-5.png)
+    
+
+### 2. DTO Validation 강화
+
+- **문제 인식**
+    
+    과제 요구사항에서도 `request`에 사용되는 `DTO`에 `validation`을 추가하라는 과제가 있었습니다. 다른 `request DTO`에도 추가를 하면 일관성과 안정성을 같이 확보할 수 있다고 생각했습니다. 다른 도메인은 비즈니스 요구사항이 명확하지 않다고 하더라도, 인증, 사용자와 관련된 부분은 반드시 있어야 한다고 생각했습니다.
+    
+- **해결 과정**
+    
+    그래서,  `User` 도메인의 `request DTO`에도 `validation`을 적용했습니다. `userRole` 같은 경우 다른 제약조건이 없어서, 제약조건을 추가했습니다. `Auth`도메인은 과제를 통해 이미 완성이 되어 있어서, 위반 시 발생시킬 메시지를 설정했습니다.
+    
+    ![image.png](img/2025-09-01-image-6.png)
+    
+    ![image.png](img/2025-09-01-image-7.png)
+    
+    ![image.png](img/2025-09-01-image-8.png)
+    
+    ![image.png](img/2025-09-01-image-9.png)
+    
+
+### 3. ManagerController의 deleteManager 메소드에서 @Auth 사용하도록 개선
+
+- **문제 인식**
+    
+    담당자를 삭제하는 `deleteManager` 메서드는 삭제 권한이 있는지 확인하기 위해 인증된 사용자 정보가 필요했지만, 파라미터로 어노테이션이 존재하는 `AuthUser`를 받지 않고 있었습니다. 헤더에 직접 접근한 뒤에 `jwtutil`까지 불러와서 직접 인증 과정을 수행하고 있었습니다.
+    
+- **해결 과정**
+    
+    ![image.png](img/2025-09-01-image-10.png)
+    
+    `@Auth`를 이용하는 `AuthUser` 타입의 객체를 파라미터로 받아오고, 해당 객체를 활용하여 id 값을 넘겨주었습니다.
+    
+
+### 4. 비밀번호 변경 시 변경 로직 순서 개선
+
+- **문제 인식**
+    
+    ```java
+    @Transactional
+    public void changePassword(long userId, UserChangePasswordRequest userChangePasswordRequest) {
+    
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidRequestException("User not found"));
+    
+        if (passwordEncoder.matches(userChangePasswordRequest.getNewPassword(), user.getPassword())) {
+            throw new InvalidRequestException("새 비밀번호는 기존 비밀번호와 같을 수 없습니다.");
+        }
+    
+        if (!passwordEncoder.matches(userChangePasswordRequest.getOldPassword(), user.getPassword())) {
+            throw new InvalidRequestException("잘못된 비밀번호입니다.");
+        }
+    
+        user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
+    }
+    ```
+    
+    비밀번호 변경을 담당하는 changePassword는 새로운 비밀번호의 유효성을 먼저 검증한 뒤에 현재 비밀번호에 대한 검증을 하는 순서로 이루어져 있었습니다. 저는 논리적으로, 현재 비밀번호에 대한 검증이 먼저 이루어져야 한다고 생각했습니다.
+    
+- **해결 과정**
+    
+    ```java
+    @Transactional
+    public void changePassword(long userId, UserChangePasswordRequest userChangePasswordRequest) {
+    
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new InvalidRequestException("사용자를 찾을 수 없습니다."));
+    
+        // 기존 비밀번호 확인 로직 추가
+        if (!passwordEncoder.matches(userChangePasswordRequest.getOldPassword(), user.getPassword())) {
+            log.warn("비밀번호 변경 실패 - 잘못된 기존 비밀번호, 사용자 ID: {}", userId);
+            throw new InvalidRequestException("잘못된 비밀번호입니다.");
+        }
+    
+        // 새 비밀번호가 기존 비밀번호와 같은지 확인
+        if (passwordEncoder.matches(userChangePasswordRequest.getNewPassword(), user.getPassword())) {
+            throw new InvalidRequestException("새 비밀번호는 기존 비밀번호와 같을 수 없습니다.");
+        }
+    
+        user.changePassword(passwordEncoder.encode(userChangePasswordRequest.getNewPassword()));
+        log.info("비밀번호 변경 완료 - 사용자 ID: {}", userId);
+    }
+    ```
+    
+    사용자 존재 여부는 제일 처음에 하는 것이 맞다고 생각해서 그대로 놔두었습니다. 순서를 바꿔서, 기존 비밀번호에 대한 검증을 먼저 하고 나서 새로운 비밀번호에 대한 검증 로직이 이루어지도록 했습니다. 그리고 비밀번호 변경에 대한 로깅도 추가했습니다.
+    
+
+### 5. deleteComent method에서 comment 존재 여부에 대한 확인 로직 추가
+
+- **문제 인식**
+    
+    ```java
+    @Transactional
+    public void deleteComment(long commentId) {
+        commentRepository.deleteById(commentId);
+    }
+    ```
+    
+    `deleteComment`가 전달받은 `commentId`를 이용하여 별다른 존재 여부 확인 없이, 바로 Spring data JPA가 제공하는 엔티티 삭제 메서드를 바로 수행하고 있었습니다. 댓글이 존재하지 않을 경우에 대한 명확한 예외 처리가 필요하다고 생각했습니다.
+    
+- **해결 과정**
+    
+    ```java
+    @Transactional
+    public void deleteComment(long commentId) {
+        Comment savedComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new InvalidRequestException("Comment not found"));
+    
+        commentRepository.delete(savedComment);
+    }
+    ```
+    
+    `commentRepository.findById(commentId).orElseThrow(...)`를 추가하여, 댓글이 존재하지 않을 경우 예외가 발생하도록 수정했습니다. 그리고 존재하는 경우 `findById()`를 통해 받아온 객체를 이용하여 `delete` 메소드를 작성했습니다.
+    
+
 ## Lv 7. 테스트 커버리지
+
+기본적으로 도메인 특히, `Auth`와 `User`도메인 위주로 테스트 코드를 작성했습니다. 먼저 `Service`레이어에 대해 테스트 코드를 작성했습니다. 그리고 `Controller`레이어에 대한 테스트 코드를 작성했습니다. E2E 보다는 컨트롤러 레이어에 대한 테스트를 구성했습니다.
+
+![image-1.png](img/2025-09-01-image-11.png)
+
+이렇게 하니 라인 커버리지 **58%**를 달성했습니다. `config`관련 파일들이 많았는데 `config`에 대한 테스트 코드를 작성하지 못한 것이 아쉬운 것 같습니다.
 
 # 2. 느낀점 및 다음 계획
 
 항상 어려워하고, 미루기 바빴던 테스트 코드 작성에 대해 조금이라도 연습할 수 있어서 좋았습니다. 다만, 테스트 구현에도 시간이 꽤 소모되기도 하고, 구현 로직이 아예 변경되는 경우 테스트 코드도 수정이 필요합니다. 따라서 효율적으로 필요한 테스트 코드를 작성하기 위해서는 어느 정도 경험이 쌓여야할 것 같습니다.
 
 그리고 filter와 interceptor, aop 까지 모두 사용해볼 수도 있어서 좋았습니다. 구현해야하는 기능에 맞게 적절하게 선택할 수 있도록 노력해야겠습니다.
+
+Level 6과 Level 7인 경우 좀 더 코드를 전체적으로 연구했더라면, 많은 것을 할 수 있었을텐데 개인적으로 이번 주에 다른 학습을 병행하느라 과제만 몰입하지는 못 해서 조금 아쉬움이 남습니다.
 
 특히 AOP의 경우 프록시로 인해 생기는 문제들도 있는 것으로 알고 있습니다. 그 부분에 대한 학습이 조금 더 필요할 것 같습니다.
