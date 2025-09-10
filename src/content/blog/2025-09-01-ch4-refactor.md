@@ -45,7 +45,7 @@ tags:
 
 - **해결 과정**
     1. `application-dev.yml`을 생성 후 `datasource` 관련 설정을 저장했습니다.
-    2. 아래와 같은 메시지 확인 후 `application-dev.yml`에 [`jwt.secret.k](http://jwt.secret.ky)ey`를 요건에 맞게 작성했습니다.
+    2. 아래와 같은 메시지 확인 후 `application-dev.yml`에 `jwt.secret.key`를 요건에 맞게 작성했습니다.
         
         ![image.png](img/2025-09-01-image-1.png)
         
